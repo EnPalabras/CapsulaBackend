@@ -48,7 +48,7 @@ CapsulaTiempo.post('/', async (req, res) => {
   } catch (error) {
     return res.status(400).json({
       message: 'Error',
-      error: 'Ocurrió un error al cargar los datos',
+      error: 'Ocurrió un error al cargar  los datos',
     })
   }
 })
