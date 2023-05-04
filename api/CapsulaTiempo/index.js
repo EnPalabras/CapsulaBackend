@@ -41,6 +41,8 @@ CapsulaTiempo.post('/', async (req, res) => {
 
     const result = await appendData('Hoja 1', values)
 
+    console.log(result)
+
     return res.status(200).json({
       message: 'Ok',
       result,
