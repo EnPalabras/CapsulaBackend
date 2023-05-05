@@ -5,8 +5,8 @@ const CapsulaTiempo = express.Router()
 
 CapsulaTiempo.post('/', async (req, res) => {
   console.log(req.body)
-  const { name, email, message } = req.body
-  const date = new Date().toISOString()
+  const { name, email, message, date } = req.body
+  const dateCreated = new Date().toISOString()
 
   if (!name || !email || !message) {
     return res.status(400).json({
@@ -37,7 +37,7 @@ CapsulaTiempo.post('/', async (req, res) => {
   }
 
   try {
-    const values = [[name, email, message, date]]
+    const values = [[name, email, message, date, dateCreated]]
 
     const result = await appendData('Hoja 1', values)
 
