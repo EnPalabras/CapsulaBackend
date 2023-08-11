@@ -6,7 +6,7 @@ const CapsulaTiempo = express.Router()
 CapsulaTiempo.post('/', async (req, res) => {
   console.log(req.body)
   const { name, email, message, date } = req.body
-  const dateCreated = new Date().toISOString()
+  const dateCreated = new Date()
 
   if (!name || !email || !message) {
     return res.status(400).json({
