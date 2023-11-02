@@ -60,29 +60,9 @@ CapsulaTiempo.post('/', async (req, res) => {
 export default CapsulaTiempo
 
 const PostContactsToPerfit = async (email) => {
-  const SEARCH_CONTACT = await fetch(
-    `https://api.myperfit.com/v2/enpalabras/contacts?q=${email}`,
-    {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${process.env.PERFIT_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    }
-  )
-
-  const searchData = await SEARCH_CONTACT.json()
-
-  if (!searchData.success) {
-    console.log('Error al buscar el contacto')
-    return { error: searchData.error }
-  }
-
-  if (searchData.data.length > 0) {
-    const id = searchData.data[0].id
-
-    const GET_CONTACT = await fetch(
-      `https://api.myperfit.com/v2/enpalabras/contacts/${id}`,
+  try {
+    const SEARCH_CONTACT = await fetch(
+      `https://api.myperfit.com/v2/enpalabras/contacts?q=${email}`,
       {
         method: 'GET',
         headers: {
@@ -92,36 +72,85 @@ const PostContactsToPerfit = async (email) => {
       }
     )
 
-    const getData = await GET_CONTACT.json()
+    const searchData = await SEARCH_CONTACT.json()
 
-    if (!getData.success) {
+    if (!searchData.success) {
       console.log('Error al buscar el contacto')
-      return { error: getData.error }
+      return { error: searchData.error }
     }
 
-    const lists = getData.data.lists.map((list) => list.id)
+    if (searchData.data.length > 0) {
+      const id = searchData.data[0].id
 
-    const EDIT_CONTACT = await fetch(
-      `https://api.myperfit.com/v2/enpalabras/contacts/${id}`,
-      {
-        method: 'PUT',
-        body: JSON.stringify({
-          lists: [...lists, PERFIT_LIST],
-        }),
-        headers: {
-          Authorization: `Bearer ${process.env.PERFIT_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
+      const GET_CONTACT = await fetch(
+        `https://api.myperfit.com/v2/enpalabras/contacts/${id}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${process.env.PERFIT_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      const getData = await GET_CONTACT.json()
+
+      if (!getData.success) {
+        console.log('Error al buscar el contacto')
+        return { error: getData.error }
       }
-    )
 
-    const editData = await EDIT_CONTACT.json()
+      const lists = getData.data.lists.map((list) => list.id)
 
-    if (!editData.success) {
-      console.log('Error al editar el contacto')
-      return { error: editData.error }
+      const EDIT_CONTACT = await fetch(
+        `https://api.myperfit.com/v2/enpalabras/contacts/${id}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({
+            lists: [...lists, PERFIT_LIST],
+          }),
+          headers: {
+            Authorization: `Bearer ${process.env.PERFIT_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      const editData = await EDIT_CONTACT.json()
+
+      if (!editData.success) {
+        console.log('Error al editar el contacto')
+        return { error: editData.error }
+      }
+
+      return { success: true, data: editData }
     }
 
-    return { success: true, data: editData }
+    const URL = 'https://api.myperfit.com/v2/enpalabras/contacts'
+
+    const response = await fetch(URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: email,
+        lists: [PERFIT_LIST],
+        language: 'es',
+      }),
+
+      headers: {
+        Authorization: `Bearer ${process.env.PERFIT_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const data = await response.json()
+
+    if (!data.success) {
+      console.log('Error al crear el contacto')
+      return { error: data.error }
+    }
+
+    return { success: true, data }
+  } catch (error) {
+    console.log(error)
   }
 }
